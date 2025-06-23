@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: rtsp-optimizer
+
+  mvc:
+    view:
+      suffix: .html
+cctv:
+  streams:
+    - id: cctv1
+      name: Main cctv
+      url: http://210.99.70.120:1935/live/cctv001.stream/playlist.m3u8
+    - id: cctv2
+      name: cctv2
+      url: http://210.99.70.120:1935/live/cctv002.stream/playlist.m3u8
+    - id: cctv3
+      name: cctv3
+      url: http://210.99.70.120:1935/live/cctv003.stream/playlist.m3u8
+    - id: cctv4
+      name: cctv4
+      url: http://210.99.70.120:1935/live/cctv004.stream/playlist.m3u8
+      # url: 	rtsp://210.99.70.120:1935/live/cctv001.stream
+

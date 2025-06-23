@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCTV 모니터링</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 400px 이상, 여러 개 컬럼 자동 정렬 */
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .cctv-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .cctv-card h2 {
+            font-size: 1.2em;
+            color: #555;
+            margin: 15px 0 10px 0;
+        }
+        .cctv-card video {
+            width: 100%;
+            height: auto;
+            display: block; /* 이미지 하단 공백 제거 */
+        }
+        /* HLS/DASH 재생을 위한 video.js 스타일 */
+    </style>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="https://unpkg.com/@videojs/http-streaming@3.9.0/dist/videojs-http-streaming.min.js"></script>
+</head>
+<body>
+    <h1>CCTV 모니터링 대시보드</h1>
+
+    <div class="monitor-grid">
+        <div th:each="stream : ${cctvStreams}" class="cctv-card">
+            <h2 th:text="${stream.name}">CCTV 이름</h2>
+            <video
+                th:id="'video-' + ${stream.id}"
+                class="video-js vjs-default-skin"
+                controls
+                preload="auto"
+                autoplay playsinline muted 
+            >
+                <source th:src="${stream.url}" th:type="${stream.url.endsWith('.m3u8') ? 'application/x-mpegURL' : (stream.url.endsWith('.mpd') ? 'application/dash+xml' : 'video/mp4')}" />
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript, and consider upgrading to a
+                    web browser that
+                    <a href="https://videojs.com/html5-video-support/" target="_blank"
+                        >supports HTML5 video</a
+                    >
+                </p>
+            </video>
+            <details>
+                <summary>센서 정보</summary>
+                <p>Detailed content goes here …</p>
+            </details>
+            
+        </div>
+    </div>
+
+    <script>
+        // video.js 플레이어 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.video-js').forEach(function(videoElement) {
+                videojs(videoElement.id);
+            });
+        });
+    </script>
+</body>
+</html>
