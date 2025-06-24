@@ -52,7 +52,9 @@
 
     <div class="monitor-grid">
         <div th:each="stream : ${cctvStreams}" class="cctv-card">
-            <h2 th:text="${stream.name}">CCTV 이름</h2>
+            <div style="display:flex; align-items: center; justify-content: center;">
+                <h2 th:text="${stream.name}">CCTV 이름 </h2><button type="button">controls</button>
+            </div>
             <video
                 th:id="'video-' + ${stream.id}"
                 class="video-js vjs-default-skin"

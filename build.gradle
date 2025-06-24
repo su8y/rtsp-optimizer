@@ -25,9 +25,16 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.kurento:kurento-client:7.1.0' 
+    implementation 'org.kurento:kurento-utils:7.1.0'
+	implementation 'org.kurento:kurento-jsonrpc:7.1.0'
+	implementation 'com.google.code.gson:gson:2.8.9'
+
 	implementation 'org.springframework.boot:spring-boot-devtools'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

@@ -1,4 +1,4 @@
-package com.example.rtsp_optimizer;
+package com.example.rtsp_optimizer.hls;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,5 +17,10 @@ public class CctvMonitorController {
     public String monitor(Model model) {
         model.addAttribute("cctvStreams", cctvConfig.getStreams());
         return "monitor";
+    }
+    @GetMapping("/webrtc")
+    public String webrtc(Model model) {
+        model.addAttribute("cctvStreams", cctvConfig.getStreams());
+        return "webrtc";
     }
 }

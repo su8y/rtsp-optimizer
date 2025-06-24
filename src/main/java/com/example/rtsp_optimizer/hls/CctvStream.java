@@ -1,4 +1,4 @@
-package com.example.rtsp_optimizer;
+package com.example.rtsp_optimizer.hls;
 
 public class CctvStream {
     private String id;

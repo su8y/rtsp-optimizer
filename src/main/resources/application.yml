@@ -1,10 +1,22 @@
+server.port: 8080
+
 spring:
   application:
     name: rtsp-optimizer
-
+  output:
+    ansi:
+      enabled: always
   mvc:
     view:
       suffix: .html
+logging:
+  level:
+    '[com.example.rtsp_optimizer]': DEBUG
+
+srs.webrtc.url: http://localhost:8888/rtc
+srs.webhook.url: http://localhost:8888/api/v1/callbacks
+
+kurento.url: ws://localhost:8888/kurento
 cctv:
   streams:
     - id: cctv1

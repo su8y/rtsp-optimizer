@@ -1,4 +1,4 @@
-package com.example.rtsp_optimizer;
+package com.example.rtsp_optimizer.hls;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

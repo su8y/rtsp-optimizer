@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kurento CCTV Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #videoContainer { margin-top: 20px; }
+        video { width: 640px; height: 360px; background-color: black; }
+        input { width: 400px; padding: 5px; }
+        button { padding: 8px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Kurento CCTV 실시간 스트리밍</h1>
+
+    <div>
+        <label for="cctvUrl">CCTV RTSP URL:</label>
+        <input type="text" id="cctvUrl" value="rtsp://210.99.70.120:1935/live/cctv001.stream" placeholder="Enter RTSP URL">
+        <button onclick="start()">스트림 시작</button>
+        <button onclick="stop()">스트림 중지</button>
+    </div>
+
+    <div id="videoContainer">
+        <video id="videoElement" autoplay playsinline controls></video>
+    </div>
+
+ <script src="
+https://cdn.jsdelivr.net/npm/kurento-js-utils@6.16.0/kurento-utils.min.js
+"></script>
+
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const cctvUrlInput = document.getElementById('cctvUrl');
+        let webRtcPeer; // KurentoUtils의 WebRtcPeer 객체
+
+        // Kurento 시그널링 서버 (Spring Boot) WebSocket URL
+        const ws = new WebSocket("ws://localhost:8080/signaling");
+
+        ws.onmessage = function(message) {
+            const parsedMessage = JSON.parse(message.data);
+            console.info('Received message: ' + parsedMessage.id);
+
+            switch (parsedMessage.id) {
+                case 'startResponse':
+                    handleStartResponse(parsedMessage);
+                    break;
+                case 'iceCandidate':
+                    webRtcPeer.addIceCandidate(parsedMessage.candidate, function (error) {
+                        if (error) return console.error("Error adding candidate: " + error);
+                    });
+                    break;
+                case 'error':
+                    console.error('Error from server: ' + parsedMessage.message);
+                    alert('Error from server: ' + parsedMessage.message);
+                    stop();
+                    break;
+                case 'stop':
+                    stop();
+                    break;
+                default:
+                    console.error('Unrecognized message: ' + parsedMessage.id);
+            }
+        };
+
+        function start() {
+            console.log("스트림 시작 요청...");
+            if (!webRtcPeer) {
+                // KurentoUtils를 사용하여 WebRtcPeer 객체 생성 (수신 전용)
+                webRtcPeer = new kurentoUtils.WebRtcPeerRecvonly({
+                    remoteVideo: videoElement,
+                    onicecandidate: function (candidate) {
+                        // ICE Candidate 생성 시 서버로 전송
+                        console.log('Local ICE candidate: ' + JSON.stringify(candidate));
+                        ws.send(JSON.stringify({
+                            id: 'onIceCandidate',
+                            candidate: candidate
+                        }));
+                    }
+                }, function (error) {
+                    if (error) return console.error(error);
+
+                    // SDP Offer 생성 및 서버로 전송
+                    webRtcPeer.generateOffer(function (error, sdpOffer) {
+                        if (error) return console.error(error);
+                        console.log('SDP Offer: ' + sdpOffer);
+
+                        // 서버에 "start" 메시지와 함께 SDP Offer, CCTV URL 전송
+                        ws.send(JSON.stringify({
+                            id: 'start',
+                            sdpOffer: sdpOffer,
+                            cctvUrl: cctvUrlInput.value
+                        }));
+                    });
+                });
+            }
+        }
+
+        function handleStartResponse(message) {
+            // 서버로부터 SDP Answer 받아서 WebRtcPeer에 설정
+            webRtcPeer.processAnswer(message.sdpAnswer, function (error) {
+                if (error) return console.error(error);
+            });
+        }
+
+        function stop() {
+            if (webRtcPeer) {
+                webRtcPeer.dispose();
+                webRtcPeer = null;
+            }
+            videoElement.srcObject = null; // 비디오 중지
+            ws.send(JSON.stringify({ id: 'stop' }));
+            console.log("스트림 중지 요청");
+        }
+
+        window.onbeforeunload = function() {
+            ws.close();
+        };
+    </script>
+</body>
+</html>
